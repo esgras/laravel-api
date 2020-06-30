@@ -2,8 +2,13 @@
 
 namespace App\Exceptions;
 
+use App\Http\Response\ApiResponse;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class Handler extends ExceptionHandler
 {
@@ -50,6 +55,22 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof ValidationException) {
+            return ApiResponse::error($exception->validator->errors()->first());
+        }
+
+        if ($exception instanceof ModelNotFoundException) {
+            return ApiResponse::error('Model not found', Response::HTTP_NOT_FOUND);
+        }
+
+        if ($exception instanceof FileException) {
+            return ApiResponse::error($exception->getMessage());
+        }
+
+        if ($exception instanceof HttpExceptionInterface) {
+            return ApiResponse::error($exception->getMessage(), $exception->getStatusCode());
+        }
+
         return parent::render($request, $exception);
     }
 }
