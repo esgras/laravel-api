@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Services\Dto\RetailerAssignDto;
+use App\Services\Dto\RetailerDisengageDto;
 
-class RetailerAssignRequest extends ApiRequest
+class RetailerDisengageRequest extends ApiRequest
 {
     use DisableValidationTrait;
 
@@ -15,9 +16,8 @@ class RetailerAssignRequest extends ApiRequest
     {
         $dtos = [];
         foreach ($this->getBulkArrayInput() as $item) {
-            $dto = new RetailerAssignDto();
+            $dto = new RetailerDisengageDto();
             $dto->retailerId = $item['retailerId'] ?? '';
-            $dto->skuId = $item['skuId'] ?? '';
             $dtos[] = $dto;
         }
 

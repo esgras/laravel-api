@@ -4,7 +4,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Exceptions\FileException;
+use FilesystemIterator;
 use Illuminate\Filesystem\Filesystem;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\File\File;
 use ZipArchive;
 
@@ -19,7 +22,7 @@ class FilesystemService extends Filesystem
     public function extractByPath(
         File $archive,
         string $absolutePath,
-//        bool $renameDirsToLowercase = false,
+        bool $renameDirsToLowercase = false,
         bool $clearFiles = false
     ): void {
         $filename = $archive->getRealPath();
@@ -45,10 +48,28 @@ class FilesystemService extends Filesystem
             throw new FileException("Can't extract archive file by path ${absolutePath}");
         }
 
-//        if ($renameDirsToLowercase) {
-//            $this->renameSubdirsToLowerCase($absolutePath);
-//        }
+        if ($renameDirsToLowercase) {
+            $this->renameSubdirsToLowerCase($absolutePath);
+        }
 
         $zip->close();
+    }
+
+    public function renameSubdirsToLowerCase(string $path): void
+    {
+        $it = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
+        $it = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($it as $file) {
+            $lowercaseBaseName = mb_strtolower($file->getBaseName());
+            $destinationPath = $file->getPath() . '/' . $lowercaseBaseName;
+            if ($file->isDir() && $lowercaseBaseName !== $file->getBaseName()) {
+                if ($this->isDirectory($destinationPath)) {
+                    $this->deleteDirectory($destinationPath);
+                }
+
+                // rename directory to lowercase
+                $this->move($file->getPathName(), $destinationPath);
+            }
+        }
     }
 }

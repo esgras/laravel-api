@@ -6,6 +6,7 @@ namespace App\Domain\Services;
 use App\Domain\Factory\EpackageFactory;
 use App\Entities\Epackage;
 use App\Repositories\EpackageRepository;
+use App\Services\Epackage\EpackageExtractor;
 use App\Services\ManifestService;
 use App\Traits\ValidationTrait;
 use Illuminate\Database\Eloquent\Collection;
@@ -18,15 +19,18 @@ class EpackageService
     private EpackageRepository $epackageRepository;
     private ManifestService $manifestService;
     private EpackageFactory $epackageFactory;
+    private EpackageExtractor $epackageExtractor;
 
     public function __construct(
         EpackageRepository $epackageRepository,
         ManifestService $manifestService,
-        EpackageFactory $epackageFactory
+        EpackageFactory $epackageFactory,
+        EpackageExtractor $epackageExtractor
     ) {
         $this->epackageRepository = $epackageRepository;
         $this->manifestService = $manifestService;
         $this->epackageFactory = $epackageFactory;
+        $this->epackageExtractor = $epackageExtractor;
     }
 
     public function get(string $id): Epackage
@@ -48,6 +52,12 @@ class EpackageService
         $this->validateEntity($epackage);
 
         return $this->epackageRepository->save($epackage);
+    }
+
+    public function deleteEpack(Epackage $epackage): void
+    {
+        $this->epackageExtractor->clearEpackage($epackage);
+        $this->epackageRepository->delete($epackage);
     }
 
 

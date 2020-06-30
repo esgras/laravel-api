@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Dto;
 
 use App\Utils\ValidateEntityInterface;
+use Illuminate\Validation\Rule;
 
 class RetailerAssignDto implements ValidateEntityInterface
 {
@@ -14,8 +15,8 @@ class RetailerAssignDto implements ValidateEntityInterface
     public function toArray(): array
     {
         return [
-            'epackageId' => $this->epackageId,
-            'retailerId' => $this->retailerId,
+            'epackage_id' => $this->epackageId,
+            'retailer_id' => $this->retailerId,
             'skuId' => $this->skuId,
         ];
     }
@@ -23,15 +24,30 @@ class RetailerAssignDto implements ValidateEntityInterface
     public function rules(): array
     {
         $uuidv4 = config('params.routing.uuid_v4');
+        $self = $this;
 
         return [
-            'retailerId' => 'required|regex:/'.$uuidv4.'/',
-            'skuId' => 'required',
+            'retailer_id' => [
+                'required',
+                'regex:/' . $uuidv4 . '/',
+                Rule::unique('epackage_retailers')->where(function ($query) use ($self) {
+                    return $query->where('epackage_id', $self->epackageId)->where('retailer_id', $self->retailerId);
+                })
+            ],
+            'skuId' => [
+                'required',
+                Rule::unique('epackage_retailers')->where(function($query) use ($self) {
+                    return $query->where('retailer_id', $self->retailerId)->where('skuId', $self->skuId);
+                })
+            ],
         ];
     }
 
     public function messages(): array
     {
-        return [];
+        return [
+            'retailer_id.unique' => 'Epackage already connected to retailer :input',
+            'skuId.unique' => 'skuId already :input already used by retailer',
+        ];
     }
 }

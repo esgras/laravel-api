@@ -21,6 +21,9 @@ class CreateEpackageRetailersTable extends Migration
             $table->string('retailer_id');
             $table->timestamps();
 
+            $table->unique(['epackage_id', 'retailer_id']);
+            $table->unique(['skuId', 'retailer_id']);
+
             $table->foreign('epackage_id')
                 ->on('epackages')
                 ->references('id')

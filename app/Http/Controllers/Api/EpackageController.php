@@ -5,15 +5,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Services\EpackageRetailerService;
 use App\Domain\Services\EpackageService;
+use App\Entities\Epackage;
+use App\Entities\EpackageRetailer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EpackageRequest;
+use App\Http\Requests\EpackageRetailerRequest;
 use App\Http\Requests\RetailerAssignRequest;
+use App\Http\Requests\RetailerDisengageRequest;
 use App\Traits\ValidationTrait;
-use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Validation\ValidationException;
 
 class EpackageController extends Controller
 {
@@ -51,7 +53,8 @@ class EpackageController extends Controller
 
     public function delete(string $id): JsonResponse
     {
-        $this->epackageService->delete($id);
+        $epackage = $this->epackageService->get($id);
+        $this->epackageService->deleteEpack($epackage);
 
         return $this->jsonResponse(null, Response::HTTP_OK, "Epackage {$id} successfully deleted");
     }
@@ -63,7 +66,7 @@ class EpackageController extends Controller
         );
     }
 
-    public function assignRetailer(
+    public function assignRetailers(
         string $id,
         RetailerAssignRequest $request,
         EpackageRetailerService $epackageRetailerService
@@ -72,7 +75,7 @@ class EpackageController extends Controller
         $retailerAssignDtos = $request->getDtos();
 
         foreach ($retailerAssignDtos as $retailerAssignDto) {
-            $retailerAssignDto->id = $id;
+            $retailerAssignDto->epackageId = $id;
             $this->validateEntity($retailerAssignDto);
         }
 
@@ -80,4 +83,45 @@ class EpackageController extends Controller
 
         return $this->jsonResponse(true);
     }
+
+    /**
+     * @param string $id
+     * @param RetailerDisengageRequest $request
+     * @param EpackageRetailerService $epackageRetailerService
+     * @return JsonResponse
+     * @throws ValidationException
+     */
+    public function retailersDisengage(
+        string $id,
+        RetailerDisengageRequest $request,
+        EpackageRetailerService $epackageRetailerService
+    ): JsonResponse {
+        $epackage = $this->epackageService->get($id);
+        $retailerDisengageDtos = $request->getDtos();
+
+        foreach ($retailerDisengageDtos as $retailerDisengageDto) {
+            $this->validateEntity($retailerDisengageDto);
+        }
+
+        $epackageRetailerService->disengageRetailersFromEpack($epackage, $retailerDisengageDtos);
+
+        return $this->jsonResponse(true);
+    }
+
+    public function retailerUpdate(
+        string $id,
+        string $retailerId,
+        EpackageRetailerRequest $request,
+        EpackageRetailerService $epackageRetailerService
+    ): JsonResponse {
+        $epackage = $this->epackageService->get($id);
+
+        $epackageRetailerDto = $request->getDto();
+        $epackageRetailerDto->retailerId = $retailerId;
+
+        $epackageRetailerService->update($epackage, $epackageRetailerDto);
+
+        return $this->jsonResponse(true);
+    }
+
 }

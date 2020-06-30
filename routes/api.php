@@ -26,13 +26,13 @@ Route::group([
     Route::group([
         'prefix' => 'file'
     ], function() {
+        Route::get('/test', 'FileController@test');
         Route::delete('/delete-all', 'FileController@deleteAll');
         Route::post('/upload', 'FileController@upload');
         Route::post('/{id}', 'FileController@upload')->where('id', UUID_V4_PATTERN);
         Route::get('/find/{id}', 'FileController@find')->where('id', UUID_V4_PATTERN);
         Route::post('/update/{id}', 'FileController@update')->where('id', UUID_V4_PATTERN);
         Route::get('/foo', 'FileController@foo');
-        Route::get('/show-test', 'FileController@showTest');
 
         Route::delete('/{id}', 'FileController@delete')->where('id', UUID_V4_PATTERN);
     });
@@ -45,7 +45,10 @@ Route::group([
         Route::post('/{id}', 'EpackageController@update')->where('id', UUID_V4_PATTERN);
         Route::get('/{id}', 'EpackageController@find')->where('id', UUID_V4_PATTERN);
         Route::delete('/{id}', 'EpackageController@delete')->where('id', UUID_V4_PATTERN);
-        Route::post('/{id}/retailers/assign', 'EpackageController@assignRetailer')->where('id', UUID_V4_PATTERN);
+        Route::post('/{id}/retailers/assign', 'EpackageController@assignRetailers')->where('id', UUID_V4_PATTERN);
+        Route::post('/{id}/retailers/disengage', 'EpackageController@retailersDisengage')->where('id', UUID_V4_PATTERN);
+
+        Route::put('/{id}/{retailerId}', 'EpackageController@retailerUpdate')->where('id', UUID_V4_PATTERN)->where('retailerId', UUID_V4_PATTERN);
     });
 
     Route::group([

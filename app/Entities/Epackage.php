@@ -6,6 +6,7 @@ use App\Services\Dto\ManifestEntitiesDto;
 use App\Utils\ValidateEntityInterface;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 
@@ -38,6 +39,8 @@ use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
  * @property string $brand_id
  * @property-read \App\Entities\Brand $brand
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\Epackage whereBrandId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Entities\EpackageRetailer[] $epackageRetailers
+ * @property-read int|null $epackage_retailers_count
  */
 class Epackage extends Model implements ValidateEntityInterface
 {
@@ -72,31 +75,25 @@ class Epackage extends Model implements ValidateEntityInterface
         $self = $this;
 
         return [
-            'cmsPackId' => ['required',
+            'cmsPackId' => [
+                'required',
                 Rule::unique(self::class)->where(function ($query) use($self) {
                     return $query->where('cmsPackId', $self->cmsPackId)->where('cmsId', $self->cmsId);
                 })->ignore($this->id)
             ],
-            'ean' => ['required',
+            'ean' => [
+                'required',
                 Rule::unique(self::class)->where(function ($query) use($self) {
                     return $query->where('brand_id', $self->brand_id)->where('ean', $self->ean);
                 })->ignore($this->id)
             ],
-            'mpn' => ['required',
+            'mpn' => [
+                'required',
                 Rule::unique(self::class)->where(function ($query) use($self) {
                     return $query->where('brand_id', $self->brand_id)->where('mpn', $self->mpn);
                 })->ignore($this->id)
             ],
         ];
-    }
-
-    public function delete(): ?bool
-    {
-        if ($this->file instanceof File) {
-            $this->file->delete();
-        }
-
-        return parent::delete();
     }
 
     public function messages(): array
@@ -111,5 +108,29 @@ class Epackage extends Model implements ValidateEntityInterface
     public function toArray(): array
     {
         return parent::toArray();
+    }
+
+    public function getArchiveFile(): SymfonyFile
+    {
+        return $this->file->getFile();
+    }
+
+    public function getBrandName(): string
+    {
+        return $this->brand->name;
+    }
+
+    public function delete(): ?bool
+    {
+        if ($this->file instanceof File) {
+            $this->file->delete();
+        }
+
+        return parent::delete();
+    }
+
+    public function epackageRetailers(): HasMany
+    {
+        return $this->hasMany(EpackageRetailer::class);
     }
 }

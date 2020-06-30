@@ -63,6 +63,10 @@ class Handler extends ExceptionHandler
             return ApiResponse::error('Model not found', Response::HTTP_NOT_FOUND);
         }
 
+        if ($exception instanceof NotFoundException) {
+            return ApiResponse::error($exception->getMessage(), Response::HTTP_NOT_FOUND);
+        }
+
         if ($exception instanceof FileException) {
             return ApiResponse::error($exception->getMessage());
         }

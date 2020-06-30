@@ -22,7 +22,7 @@ class MacrosServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      *
-     * @return voidf
+     * @return void
      */
     public function boot()
     {

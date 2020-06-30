@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Entities\Retailer
@@ -23,8 +24,15 @@ use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\Retailer whereUpdatedAt($value)
  * @property string $productIdField
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\Retailer whereProductIdField($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Entities\EpackageRetailer[] $epackageRetailers
+ * @property-read int|null $epackage_retailers_count
  */
 class Retailer extends Model
 {
     public const PRODUCT_ID_FIELD_VALUES = ['mpn', 'ean'];
+
+    public function epackageRetailers(): HasMany
+    {
+        return $this->hasMany(EpackageRetailer::class);
+    }
 }

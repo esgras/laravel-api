@@ -19,6 +19,7 @@ class EpackageRetailerFactory
         $epackageRetailer->epackage_id = $epackage->id;
         $epackageRetailer->retailer_id = $retailer->id;
         $epackageRetailer->skuId = $retailerAssignDto->skuId;
+        $epackageRetailer->makeEpackageLink();
 
         return $epackageRetailer;
     }

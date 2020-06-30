@@ -9,6 +9,7 @@ return [
         'max_filesize' => env('UPLOAD_MAX_FILESIZE')
     ],
     'paths' => [
-        'temp' => '/tmp'
+        'temp' => '/tmp',
+        'packages_dir' => public_path() . '/'
     ]
 ];
