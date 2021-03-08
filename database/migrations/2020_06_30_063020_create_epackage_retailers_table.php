@@ -43,10 +43,6 @@ class CreateEpackageRetailersTable extends Migration
      */
     public function down()
     {
-        Schema::table('epackage_retailers',  function (Blueprint $table) {
-            $table->dropForeign(['epackage_id']);
-            $table->dropForeign(['retailer_id']);
-        });
         Schema::dropIfExists('epackage_retailers');
     }
 }

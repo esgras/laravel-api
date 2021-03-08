@@ -37,6 +37,7 @@ class BrandController extends Controller
      */
     public function create(BrandRequest $request): JsonResponse
     {
+
         $brandDto = $request->getDto();
         $this->validateEntity($brandDto);
 
@@ -73,6 +74,21 @@ class BrandController extends Controller
     {
         return $this->jsonResponse(
             $this->brandService->findAll()
+        );
+    }
+
+
+    public function deactivateRetailer(string $id, string $retailerId): JsonResponse
+    {
+        return $this->jsonResponse(
+            $this->brandService->deactivateRetailer($id, $retailerId)
+        );
+    }
+
+    public function activateRetailer(string $id, string $retailerId): JsonResponse
+    {
+        return $this->jsonResponse(
+            $this->brandService->activateRetailer($id, $retailerId)
         );
     }
 

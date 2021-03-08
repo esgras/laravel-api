@@ -3,11 +3,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Entities\Brand;
+use App\Entities\EpackageRetailer;
 use App\Entities\File;
 use App\Entities\Foo;
 use App\Entities\Test;
+use App\Events\BrandDeleted;
+use App\Events\LogRow;
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessEpackageAssign;
 use App\Repositories\EpackageRetailerRepository;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\View;
@@ -16,72 +23,52 @@ use App\Entities\Retailer;
 
 class FileController extends Controller
 {
-    public function upload(Request $request): Response
+    public function eventTest(): Response
     {
-        $file = new File();
-        $file->setFile($request->file('archive'));
-        $file->save();
-
-        return new Response($file->id);
-    }
-
-    public function update(string $id, Request $request): Response
-    {
-        $file = File::findOrFail($id);
-        $file->setFile($request->file('archive'));
-        $file->save();
-
-        return new Response($file->id);
-    }
-
-    public function find(string $id)
-    {
-        $test = Test::findOrFail($id);
-
-        foreach ($test->foos as $foo) {
-            $foo->name .= ' update';
+        /** @todo QUEUE*/
+        foreach (range(1, 10) as $number) {
+            event(new LogRow((string)$number));
         }
 
-        $test->push();
-
-
-        $file = File::findOrFail($id);
-
-        dd($file);
+        return new Response('Check file');
     }
 
-    public function deleteAll()
+    public function jobTest(): Response
     {
-        $files = File::all();
-        foreach ($files as $file) {
-            $file->delete();
+
+        $id = Epackage::query()->first()->id;
+        ProcessEpackageAssign::dispatch($id);
+
+        $logFile = storage_path('logs/queues.txt');
+        $fs = new Filesystem();
+        foreach (range(1, 10) as $number) {
+            dispatch(fn() => $fs->append($logFile, $number . PHP_EOL));
         }
 
-        return new Response('files deleted');
+        return new Response('Check files');
     }
 
-    public function delete(string $id)
+    public function foo(): JsonResponse
     {
-//        dd(1);
-        $file = File::findOrFail($id);
-        $file->delete();
-        dd($id);
 
-        dd($id);
+
+        $brand = Brand::where('name', 'Philips')->first();
+        $retailer = Retailer::where('name', 'Nord24')->first();
+
+        $br = $brand->makeBrandRetailer($retailer);
+        dd($br);
+
+        event(new BrandDeleted($brand->id));
+        dump(1);
+
+        return new JsonResponse($brand);
     }
 
-    public function foo(): Response
+    public function morex(): Response
     {
-        $test = $this->getTest();
-
-        foreach (range(1, 5) as $number) {
-            $foo = (new Foo)->change("Foo{$number}");
-            $test->addFoo($foo);
-            $foo->save();
-        }
-
-//        $tests = Test::all()->where('id', '>', 2);
-        $foos = Foo::all();
+        dd(1);
+        $brand = Brand::query()->first();
+        dd($brand);
 
         return new Response($foos->count());
     }
@@ -102,31 +89,5 @@ class FileController extends Controller
         dd($this->getTest()->foos()->count());
 
         return new Response('x');
-    }
-
-    public function cool(): Response
-    {
-        $test = (new Test)->change('My test');
-        $foos = array_map(fn(int $i): Foo => (new Foo)->change("Foo {$i}"), [1, 2]);
-        foreach ($foos as $foo) {
-            $test->addFoo($foo);
-        }
-        dd($test->foos()->getRelated());
-
-//        $test->foos()->create();
-//        $test->save();
-
-        dd($test->foos());
-
-        $test->foos()->saveMany($foos);
-//        dd($test->relations);
-//        $test->push();
-
-        return new Response('Check db');
-    }
-
-    protected function getTest(): Test
-    {
-        return Test::query()->orderBy('created_at', 'desc')->first();
     }
 }

@@ -2,9 +2,17 @@
 
 use Illuminate\Database\Seeder;
 use App\Entities\Retailer;
+use App\Domain\Services\BrandService;
 
 class RetailerSeeder extends Seeder
 {
+    private BrandService $brandService;
+
+    public function __construct(BrandService $brandService)
+    {
+        $this->brandService = $brandService;
+    }
+
     /**
      * Run the database seeds.
      *
@@ -18,6 +26,8 @@ class RetailerSeeder extends Seeder
                 'domain' => $domain
             ]);
         }
+
+        $this->brandService->createAllBrandRetailers();
     }
 
     private function getRetailerData(): array

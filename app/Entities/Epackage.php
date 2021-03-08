@@ -44,6 +44,8 @@ use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
  */
 class Epackage extends Model implements ValidateEntityInterface
 {
+    protected $with = ['brand', 'file', 'epackageRetailers'];
+
     public function file(): BelongsTo
     {
         return $this->belongsTo(File::class);

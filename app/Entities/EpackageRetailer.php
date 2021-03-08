@@ -9,13 +9,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * App\Entities\EpackageRetailer
  *
- * @property int $id
+ * @property string $id
  * @property string $skuId
  * @property string $epackageLink
  * @property string $epackage_id
  * @property string $retailer_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Entities\Epackage $epackage
+ * @property-read \App\Entities\Retailer $retailer
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\EpackageRetailer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\EpackageRetailer newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\EpackageRetailer query()
@@ -27,8 +29,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\EpackageRetailer whereSkuId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\EpackageRetailer whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read \App\Entities\Epackage $epackage
- * @property-read \App\Entities\Retailer $retailer
  */
 class EpackageRetailer extends Model
 {
@@ -67,6 +67,10 @@ class EpackageRetailer extends Model
     public function canExtract(): bool
     {
         return true;
+//
+//        $brand = $this->epackage->brand;
+//
+//        return $this->retailer->isActiveForBrand($brand);
     }
 
     public function isActive(): bool

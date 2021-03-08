@@ -26,15 +26,11 @@ Route::group([
     Route::group([
         'prefix' => 'file'
     ], function() {
+        Route::get('/morex', 'FileController@morex');
         Route::get('/test', 'FileController@test');
-        Route::delete('/delete-all', 'FileController@deleteAll');
-        Route::post('/upload', 'FileController@upload');
-        Route::post('/{id}', 'FileController@upload')->where('id', UUID_V4_PATTERN);
-        Route::get('/find/{id}', 'FileController@find')->where('id', UUID_V4_PATTERN);
-        Route::post('/update/{id}', 'FileController@update')->where('id', UUID_V4_PATTERN);
         Route::get('/foo', 'FileController@foo');
-
-        Route::delete('/{id}', 'FileController@delete')->where('id', UUID_V4_PATTERN);
+        Route::get('/event-test', 'FileController@eventTest');
+        Route::get('/job-test', 'FileController@jobTest');
     });
 
     Route::group([

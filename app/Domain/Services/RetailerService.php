@@ -12,11 +12,14 @@ use Illuminate\Http\UploadedFile;
 class RetailerService
 {
     private RetailerRepository $retailerRepository;
+    private BrandService $brandService;
 
     public function __construct(
-        RetailerRepository $retailerRepository
+        RetailerRepository $retailerRepository,
+        BrandService $brandService
     ) {
         $this->retailerRepository = $retailerRepository;
+        $this->brandService = $brandService;
     }
 
     public function get(string $id): Retailer
@@ -32,12 +35,16 @@ class RetailerService
 
     public function create(RetailerDto $retailerDto): Retailer
     {
-        $Retailer = new Retailer;
-        $Retailer->name = $retailerDto->name;
-        $Retailer->domain = $retailerDto->domain;
-        $Retailer->productIdField = $retailerDto->productIdField;
+        $retailer = new Retailer;
+        $retailer->name = $retailerDto->name;
+        $retailer->domain = $retailerDto->domain;
+        $retailer->productIdField = $retailerDto->productIdField;
 
-        return $this->retailerRepository->save($Retailer);
+        $this->retailerRepository->save($retailer);
+
+        $this->brandService->createBrandRetailersByRetailer($retailer);
+
+        return $retailer;
     }
 
     public function update(Retailer $Retailer, RetailerDto $retailerDto): Retailer

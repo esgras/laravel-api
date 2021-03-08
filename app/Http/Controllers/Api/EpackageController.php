@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Services\EpackageRetailerService;
 use App\Domain\Services\EpackageService;
-use App\Entities\Epackage;
-use App\Entities\EpackageRetailer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EpackageRequest;
 use App\Http\Requests\EpackageRetailerRequest;
 use App\Http\Requests\RetailerAssignRequest;
 use App\Http\Requests\RetailerDisengageRequest;
+use App\Http\Resources\EpackageResource;
 use App\Traits\ValidationTrait;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +30,7 @@ class EpackageController extends Controller
     public function upload(EpackageRequest $request): JsonResponse
     {
         return $this->jsonResponse(
-            $this->epackageService->create($request->file('archive'))
+            new EpackageResource($this->epackageService->create($request->file('archive')))
         );
     }
 
@@ -40,14 +39,14 @@ class EpackageController extends Controller
         $epackage = $this->epackageService->get($id);
 
         return $this->jsonResponse(
-            $this->epackageService->update($epackage, $request->file('archive'))
+            new EpackageResource($this->epackageService->update($epackage, $request->file('archive')))
         );
     }
 
     public function find(string $id): JsonResponse
     {
         return $this->jsonResponse(
-            $this->epackageService->get($id)
+            new EpackageResource($this->epackageService->get($id))
         );
     }
 
@@ -62,7 +61,7 @@ class EpackageController extends Controller
     public function findAll(): JsonResponse
     {
         return $this->jsonResponse(
-            $this->epackageService->findAll()
+            EpackageResource::collection($this->epackageService->findAll())
         );
     }
 

@@ -75,6 +75,10 @@ class Handler extends ExceptionHandler
             return ApiResponse::error($exception->getMessage(), $exception->getStatusCode());
         }
 
+//        if ($exception instanceof Exception) {
+//            return ApiResponse::error($exception->getMessage());
+//        }
+
         return parent::render($request, $exception);
     }
 }

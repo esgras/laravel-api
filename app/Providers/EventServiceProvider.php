@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\BrandDeleted;
+use App\Events\LogRow;
+use App\Listeners\BrandListener;
+use App\Listeners\LogRowListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -18,6 +22,13 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        BrandDeleted::class => [
+            BrandListener::class
+        ],
+        LogRow::class => [
+            LogRowListener::class
+        ]
+
     ];
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Entities;
 
+use App\Entity\BrandRetailer;
+use App\Exceptions\NotFoundException;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -26,13 +28,44 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Entities\Retailer whereProductIdField($value)
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Entities\EpackageRetailer[] $epackageRetailers
  * @property-read int|null $epackage_retailers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Entity\BrandRetailer[] $brandRetailers
+ * @property-read int|null $brand_retailers_count
  */
 class Retailer extends Model
 {
+    protected $with = ['epackageRetailers', 'brandRetailers'];
+
     public const PRODUCT_ID_FIELD_VALUES = ['mpn', 'ean'];
 
     public function epackageRetailers(): HasMany
     {
         return $this->hasMany(EpackageRetailer::class);
+    }
+
+    public function brandRetailers(): HasMany
+    {
+        return $this->hasMany(BrandRetailer::class);
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function getBrandRetailer(Brand $brand): BrandRetailer
+    {
+        foreach ($this->getBrandRetailers() as $brandRetailer) {
+            if ($brandRetailer->isBrandEquals($brand)) {
+                return $brandRetailer;
+            }
+        }
+
+        throw new NotFoundException('BrandRetailer not found');
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function isActiveForBrand(Brand $brand): bool
+    {
+        return $this->getBrandRetailer($brand)->isActive();
     }
 }
